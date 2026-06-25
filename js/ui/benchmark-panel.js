@@ -23,12 +23,28 @@ try {
   MODEL_INFO = modelsMod.MODEL_INFO;
 } catch (_) { /* will use built-in model info */ }
 
-// ─── Built-in model definitions ──────────────────────────────────────────────
-const MODELS = MODEL_INFO || {
-  'Klein-Gordon': { key: 'klein-gordon', label: 'Klein-Gordon', color: '#2196F3', icon: '🔵' },
-  'phi4':         { key: 'phi4',         label: 'φ⁴',          color: '#FF9800', icon: '🟠' },
-  'String':       { key: 'string',       label: 'String',      color: '#9C27B0', icon: '🟣' },
-  'Orange':       { key: 'orange',       label: 'Orange-DMS',  color: '#FF6B35', icon: '🟧' },
+// ─── Consistent model definitions (always use these internal keys) ────────────
+const MODELS = {
+  'klein-gordon': {
+    key: 'klein-gordon', extId: 'KLEIN_GORDON',
+    label: 'Klein-Gordon', theory: 'Relatividade Geral',
+    color: '#2196F3', icon: '⭖',
+  },
+  'phi4': {
+    key: 'phi4', extId: 'PHI4',
+    label: 'φ⁴ Theory', theory: 'Teoria Quântica de Campos',
+    color: '#FF9800', icon: '⚛',
+  },
+  'string': {
+    key: 'string', extId: 'STRING_WORLDSHEET',
+    label: 'Worldsheet String', theory: 'Teoria das Cordas',
+    color: '#9C27B0', icon: '〜',
+  },
+  'orange': {
+    key: 'orange', extId: 'ORANGE_DMSE',
+    label: 'Orange-DMSE', theory: 'Malha Octagonal Vetorial',
+    color: '#FF6B35', icon: '🍊',
+  },
 };
 
 const MODEL_KEYS   = Object.keys(MODELS);
@@ -366,35 +382,19 @@ export class BenchmarkPanel {
     const totalModels = MODEL_KEYS.length;
 
     try {
-      let results;
-
-      if (BenchmarkRunner) {
-        // Use the external BenchmarkRunner from benchmark-runner.js
-        const runner = new BenchmarkRunner();
-        const report = await runner.runAll(1000, (progress, modelName) => {
-          const pct = progress * 100;
-          this._progressFill.style.width = `${pct}%`;
-          this._progressLabel.innerHTML = `
-            <span style="color:#FF6B35;font-weight:600">⚙️ ${modelName}</span>
-            <span style="margin-left:8px">${Math.round(pct)}%</span>
-          `;
-        });
-        // Adapt external report to internal format
-        results = this._adaptExternalReport(report);
-      } else {
-        // Fallback to built-in runner
-        const runner = new BuiltInRunner(1000);
-        this._runner = runner;
-        results = await runner.run((modelIdx, modelKey, progress) => {
-          const overall = ((modelIdx + progress) / totalModels) * 100;
-          this._progressFill.style.width = `${overall}%`;
-          const info = MODELS[modelKey];
-          this._progressLabel.innerHTML = `
-            <span style="color:${info?.color || '#FF6B35'};font-weight:600">${info?.icon || '⚙️'} ${info?.label || modelKey}</span>
-            <span style="margin-left:8px">${Math.round(overall)}%</span>
-          `;
-        });
-      }
+      // Always use BuiltInRunner — it's self-contained and doesn't
+      // depend on external PDE engine modules that may fail in browser.
+      const runner = new BuiltInRunner(1000);
+      this._runner = runner;
+      const results = await runner.run((modelIdx, modelKey, progress) => {
+        const overall = ((modelIdx + progress) / totalModels) * 100;
+        this._progressFill.style.width = `${overall}%`;
+        const info = MODELS[modelKey];
+        this._progressLabel.innerHTML = `
+          <span style="color:${info?.color || '#FF6B35'};font-weight:600">${info?.icon || '⚙️'} ${info?.label || modelKey}</span>
+          <span style="margin-left:8px">${Math.round(overall)}%</span>
+        `;
+      });
 
       this._results = results;
       this._progressFill.style.width = '100%';
@@ -416,14 +416,9 @@ export class BenchmarkPanel {
    */
   _adaptExternalReport(report) {
     const results = {};
-    const modelIdMap = {
-      'KLEIN_GORDON': 'Klein-Gordon',
-      'PHI4': 'phi4',
-      'STRING_WORLDSHEET': 'String',
-      'ORANGE_DMSE': 'Orange',
-    };
-    
-    for (const [extId, intKey] of Object.entries(modelIdMap)) {
+    // Map external MODEL_INFO keys → internal MODELS keys
+    for (const intKey of MODEL_KEYS) {
+      const extId = MODELS[intKey].extId;
       const m = report.models[extId];
       if (!m) continue;
       results[intKey] = {
@@ -471,10 +466,11 @@ export class BenchmarkPanel {
 
   /* ─── Compute Rankings ─── */
   _computeRankings(results) {
-    const entries = MODEL_KEYS.map(k => ({ key: k, info: MODELS[k], data: results[k] }));
+    const defaultData = { r_rms_final: Infinity, stableDims: 0, H_drift: Infinity, globalCoherence: 0, omegaEpsilonProduct: 0, entropy: Infinity, t_estab: 1000, r_rms_history: [], dimConverged: [] };
+    const entries = MODEL_KEYS.map(k => ({ key: k, info: MODELS[k], data: results[k] || { ...defaultData } }));
 
     // Convergence: lowest r_rms_final
-    const byConvergence = [...entries].sort((a, b) => a.data.r_rms_final - b.data.r_rms_final);
+    const byConvergence = [...entries].sort((a, b) => (a.data.r_rms_final ?? Infinity) - (b.data.r_rms_final ?? Infinity));
 
     // Stability: most stable dims
     const byStability = [...entries].sort((a, b) => b.data.stableDims - a.data.stableDims);
