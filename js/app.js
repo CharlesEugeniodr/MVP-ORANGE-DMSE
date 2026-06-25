@@ -277,7 +277,7 @@ function renderDimensions(container) {
     const panel = new DimensionAuditPanel(container);
 
     if (AppState.validationResults) {
-        panel.render(AppState.validationResults);
+        panel.render({ dimensions: mapValidatorToAudit(AppState.validationResults) });
     } else {
         const startSection = document.createElement('div');
         startSection.className = 'panel';
@@ -308,28 +308,27 @@ function renderDimensions(container) {
         document.getElementById('btn-run-validation')?.addEventListener('click', async () => {
             const btn = document.getElementById('btn-run-validation');
             btn.disabled = true;
-            btn.textContent = '⏳ Validando...';
+            btn.textContent = '⏳ Validando (1000 passos × 30 dimensões)...';
             const progressDiv = document.getElementById('validation-progress');
             if (progressDiv) progressDiv.style.display = 'block';
 
             try {
                 const validator = new DimensionValidator();
-                // validateAll is synchronous: (engine, params, steps)
-                // Create a fresh engine for validation
                 const valEngine = new DMSEngine(AppState.params);
                 valEngine.reset(42);
 
-                // Run in a setTimeout to let UI update
                 await new Promise(resolve => setTimeout(resolve, 50));
-                AppState.validationResults = validator.validateAll(
+                const rawResults = validator.validateAll(
                     valEngine,
                     AppState.params,
                     1000
                 );
 
+                AppState.validationResults = rawResults;
+
                 container.innerHTML = '';
                 const auditPanel = new DimensionAuditPanel(container);
-                auditPanel.render(AppState.validationResults);
+                auditPanel.render({ dimensions: mapValidatorToAudit(rawResults) });
             } catch (e) {
                 console.error('Validation error:', e);
                 if (btn) btn.textContent = '❌ Erro na validação';
@@ -338,6 +337,60 @@ function renderDimensions(container) {
             }
         });
     }
+}
+
+/**
+ * Map DimensionValidator output to DimensionAuditPanel column format.
+ *
+ * Validator returns: [{ dimension, status, tests: [{name, passed, value, threshold, note}], r_rms, kappa }]
+ * Audit expects:     [{ Convergence: 'PROVEN', Convergence_reason: '...', ... }]
+ */
+function mapValidatorToAudit(validatorResults) {
+    // Map test names to column names
+    const TEST_TO_COLUMN = {
+        'convergence':          'Convergence',
+        'energy_saturation':    'Saturation',
+        'temporal_stability':   'Stability',
+        'pair_impact':          'Pair Impact',
+        'parametric_sensitivity': 'Sensitivity',
+        'cross_falsifiability': 'Cross-Falsifiability',
+    };
+
+    return validatorResults.map(dimResult => {
+        const row = {};
+
+        for (const test of dimResult.tests) {
+            const colName = TEST_TO_COLUMN[test.name];
+            if (!colName) continue;
+
+            // Derive status from pass/fail + context
+            let status;
+            if (test.passed) {
+                status = 'PROVEN';
+            } else {
+                // Check specific failure modes
+                if (test.name === 'energy_saturation' && !test.passed) {
+                    status = 'SATURATED';
+                } else if (test.name === 'convergence' && test.value > 0.5) {
+                    status = 'FALLIBLE';
+                } else if (test.name === 'pair_impact' && !test.passed) {
+                    status = 'INDETERMINATE';
+                } else {
+                    status = 'FALLIBLE';
+                }
+            }
+
+            row[colName] = status;
+            row[`${colName}_reason`] = `${test.note} (valor: ${typeof test.value === 'number' ? test.value.toFixed(4) : test.value}, limiar: ${typeof test.threshold === 'number' ? test.threshold.toFixed(4) : test.threshold})`;
+        }
+
+        // Add overall status from validator
+        row._overallStatus = dimResult.status;
+        row._r_rms = dimResult.r_rms;
+        row._kappa = dimResult.kappa;
+
+        return row;
+    });
 }
 
 function renderCompare(container) {
