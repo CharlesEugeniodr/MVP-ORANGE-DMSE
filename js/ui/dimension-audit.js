@@ -215,4 +215,4 @@ function _download(blob, filename) {
   URL.revokeObjectURL(a.href);
 }
 
-export default DimensionAuditPanel;
+// Named export via class declaration above

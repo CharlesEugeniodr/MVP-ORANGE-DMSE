@@ -261,4 +261,4 @@ export class ComparativePanel {
 
 function _el(tag, cls) { const e = document.createElement(tag); if (cls) e.className = cls; return e; }
 
-export default ComparativePanel;
+// Named export via class declaration above

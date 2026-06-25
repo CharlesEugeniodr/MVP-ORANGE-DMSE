@@ -219,4 +219,4 @@ export class ChartManager {
   static get darkDefaults() { return JSON.parse(JSON.stringify(DARK_LAYOUT_DEFAULTS)); }
 }
 
-export default ChartManager;
+// Named export via class declaration above

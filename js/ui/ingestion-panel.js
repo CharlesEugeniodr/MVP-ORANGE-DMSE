@@ -270,4 +270,4 @@ function _btn(text, cls, handler) {
   b.addEventListener('click', handler); return b;
 }
 
-export default IngestionPanel;
+// Named export via class declaration above

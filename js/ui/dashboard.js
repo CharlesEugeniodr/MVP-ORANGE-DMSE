@@ -229,4 +229,4 @@ function _btn(text, cls, handler) {
   return b;
 }
 
-export default DashboardPanel;
+

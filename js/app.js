@@ -14,7 +14,7 @@ import { getApophisComparison } from './data/apophis-fallback.js';
 import * as Statistics from './utils/statistics.js';
 import * as ExportUtils from './utils/export.js';
 
-// ── UI Imports ──
+// ── UI Imports (named exports) ──
 import { ChartManager } from './ui/charts.js';
 import { DashboardPanel } from './ui/dashboard.js';
 import { OctagonalMesh3D } from './ui/octagonal-mesh-3d.js';
@@ -167,6 +167,19 @@ function updateEngineStatus(status, text) {
     if (label) label.textContent = text;
 }
 
+/** Compute mean absolute field across all channels */
+function meanField(state) {
+    if (!state || !state.E) return 0.01;
+    let sum = 0, count = 0;
+    for (let d = 0; d < state.C; d++) {
+        for (let i = 0; i < state.N; i++) {
+            sum += Math.abs(state.E[d][i]);
+            count++;
+        }
+    }
+    return count > 0 ? sum / count : 0.01;
+}
+
 function createEngine(paramsOverrides) {
     AppState.params = DMSEParams(paramsOverrides);
     AppState.engine = new DMSEngine(AppState.params);
@@ -231,7 +244,32 @@ window.updateEngineStatus = updateEngineStatus;
 
 function renderDashboard(container) {
     const panel = new DashboardPanel(container);
-    panel.render(AppState);
+    panel.render(AppState.engine, AppState.params, AppState.metricsHistory);
+
+    // Wire simulation events
+    window.addEventListener('simulation-start', async () => {
+        const steps = 300;
+        let stepCount = 0;
+        await runSimulation(steps, (progress, metrics) => {
+            stepCount++;
+            panel.updateHUD({
+                r_rms: metrics.r_rms_global,
+                kappa: AppState.engine.state.kappa[0],
+                energy_kin: metrics.E_kin[0],
+                tv: metrics.r_rms_global
+            });
+            panel.appendMetrics(stepCount, {
+                r_rms: metrics.r_rms_global,
+                kappa: AppState.engine.state.kappa[0],
+                energy_kin: metrics.E_kin[0]
+            });
+        });
+    }, { once: true });
+
+    window.addEventListener('simulation-reset', () => {
+        createEngine(AppState.params);
+        panel.render(AppState.engine, AppState.params, []);
+    }, { once: true });
 }
 
 function renderDimensions(container) {
@@ -273,16 +311,17 @@ function renderDimensions(container) {
 
             try {
                 const validator = new DimensionValidator();
-                AppState.validationResults = await validator.validateAll(
+                // validateAll is synchronous: (engine, params, steps)
+                // Create a fresh engine for validation
+                const valEngine = new DMSEngine(AppState.params);
+                valEngine.reset(42);
+
+                // Run in a setTimeout to let UI update
+                await new Promise(resolve => setTimeout(resolve, 50));
+                AppState.validationResults = validator.validateAll(
+                    valEngine,
                     AppState.params,
-                    200,
-                    123,
-                    (progress, dim) => {
-                        const fill = document.getElementById('val-progress-fill');
-                        const text = document.getElementById('val-progress-text');
-                        if (fill) fill.style.width = `${progress * 100}%`;
-                        if (text) text.textContent = `Testando dimensão ${dim + 1}/30...`;
-                    }
+                    200
                 );
 
                 container.innerHTML = '';
@@ -300,17 +339,31 @@ function renderDimensions(container) {
 
 function renderCompare(container) {
     const panel = new ComparativePanel(container);
-    panel.render(AppState);
+    const galaxyData = window.SPARC_CATALOG || {};
+    panel.render(galaxyData, AppState.orangeParams, {
+        E_mean: AppState.engine?.state ? meanField(AppState.engine.state) : 0.01,
+        kappa: AppState.engine?.state?.kappa?.[0] || 1.0
+    });
 }
 
 function renderIngest(container) {
     const panel = new IngestionPanel(container);
-    panel.render(AppState);
+    panel.render();
 }
 
 function renderAudit(container) {
     const panel = new ScientificReportPanel(container);
-    panel.render(AppState);
+    panel.render(
+        {
+            engine: AppState.engine,
+            params: AppState.params,
+            metricsHistory: AppState.metricsHistory,
+            hamiltonianHistory: AppState.hamiltonianHistory,
+            simulationSteps: AppState.simulationSteps
+        },
+        AppState.validationResults || null,
+        null
+    );
 }
 
 function renderTheory(container) {
