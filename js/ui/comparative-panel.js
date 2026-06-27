@@ -74,14 +74,14 @@ export class ComparativePanel {
 
     // ── Title
     const title = _el('h2', 'section-title');
-    title.textContent = 'Comparative Analysis — Galaxy Rotation Curves';
+    title.textContent = window.t('comp.title');
     this.root.appendChild(title);
 
     // ── Controls row
     const ctrlRow = _el('div', 'comparative-controls');
 
     // Galaxy selector
-    const selLabel = _el('label', 'param-label'); selLabel.textContent = 'Galaxy: ';
+    const selLabel = _el('label', 'param-label'); selLabel.textContent = window.t('comp.galaxy') + ': ';
     const select = document.createElement('select');
     select.className = 'param-select';
     Object.keys(GALAXIES).forEach(k => {

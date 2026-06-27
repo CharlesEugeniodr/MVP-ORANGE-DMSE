@@ -290,7 +290,7 @@ export class BenchmarkPanel {
     const header = _el('div', 'audit-header');
     header.innerHTML = `
       <h2 class="section-title" style="background:linear-gradient(135deg,#FF6B35 0%,#FF9800 50%,#2196F3 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:1.6rem">
-        Benchmark Comparativo de Campo Escalar
+        ${window.t('route.benchmark.title')}
       </h2>
       <p class="section-subtitle" style="color:#A0AEC0;margin-top:4px">
         Simulação completa de 1000 passos para 4 modelos de campo — Klein-Gordon, φ⁴, String e Orange-DMS.
@@ -319,7 +319,7 @@ export class BenchmarkPanel {
     bar.style.cssText = 'display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:16px 0';
 
     // Start button
-    this._btnStart = _btn('🚀  Iniciar Benchmark', 'sim-btn btn-start', () => this._startBenchmark());
+    this._btnStart = _btn('🚀  ' + window.t('bench.btn.run'), 'sim-btn btn-start', () => this._startBenchmark());
     this._btnStart.style.cssText = `
       background:linear-gradient(135deg,#FF6B35,#FF9800);color:#fff;font-weight:700;
       padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-size:0.95rem;
@@ -419,7 +419,7 @@ export class BenchmarkPanel {
 
       this._results = results;
       this._progressFill.style.width = '100%';
-      this._progressLabel.innerHTML = '<span style="color:#66BB6A;font-weight:600">✅ Benchmark concluído!</span>';
+      this._progressLabel.innerHTML = '<span style="color:#66BB6A;font-weight:600">' + window.t('bench.done') + '</span>';
       this._showResults(results);
     } catch (err) {
       this._progressLabel.innerHTML = `<span style="color:#EF5350">❌ Erro: ${err.message}</span>`;
@@ -479,10 +479,10 @@ export class BenchmarkPanel {
     const byCoherence = [...entries].sort((a, b) => b.data.globalCoherence - a.data.globalCoherence);
 
     const categories = {
-      convergencia:  { label: 'Convergência',           icon: '📉', desc: 'Menor r_rms final',            winner: byConvergence[0] },
-      estabilidade:  { label: 'Estabilidade Dimensional',icon: '🏗️', desc: `Dims estáveis (de ${TOTAL_DIMS})`, winner: byStability[0] },
-      energia:       { label: 'Conservação de Energia',  icon: '⚡', desc: 'Menor H_drift',                winner: byEnergy[0] },
-      coerencia:     { label: 'Coerência / Invisible Code', icon: '🔮', desc: 'Maior globalCoherence',    winner: byCoherence[0] },
+      convergencia:  { label: window.t('bench.convergence'),           icon: '', desc: 'r_rms',            winner: byConvergence[0] },
+      estabilidade:  { label: window.t('bench.stability'),icon: '', desc: `Dims (${TOTAL_DIMS})`, winner: byStability[0] },
+      energia:       { label: window.t('bench.energy'),  icon: '', desc: 'H_drift',                winner: byEnergy[0] },
+      coerencia:     { label: window.t('bench.coherence'), icon: '', desc: 'globalCoherence',    winner: byCoherence[0] },
     };
 
     // Overall score: sum of ranks (lower is better)

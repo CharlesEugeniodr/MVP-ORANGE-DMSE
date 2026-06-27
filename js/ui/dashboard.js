@@ -46,10 +46,10 @@ export class DashboardPanel {
     const hudRow = _el('div', 'hud-row');
     this._hudCards = {};
     const hudDefs = [
-      { id: 'r_rms',      label: 'r_rms Divergence', unit: '', fmt: v => v.toExponential(3) },
-      { id: 'kappa',      label: 'κ Controller',     unit: '',  fmt: v => v.toFixed(4) },
-      { id: 'energy_kin', label: 'Kinetic Energy',    unit: 'J', fmt: v => v.toExponential(3) },
-      { id: 'tv',         label: 'Total Variation',   unit: '',  fmt: v => v.toFixed(4) }
+      { id: 'r_rms',      label: window.t('dash.metric.rrms'), unit: '', fmt: v => v.toExponential(3) },
+      { id: 'kappa',      label: window.t('dash.metric.kappa'),     unit: '',  fmt: v => v.toFixed(4) },
+      { id: 'energy_kin', label: window.t('dash.metric.energy'),    unit: 'J', fmt: v => v.toExponential(3) },
+      { id: 'tv',         label: window.t('dash.metric.tv'),   unit: '',  fmt: v => v.toFixed(4) }
     ];
     hudDefs.forEach(h => {
       const card = _el('div', 'hud-card');
@@ -67,7 +67,7 @@ export class DashboardPanel {
 
     /* — Sidebar — */
     const sidebar = _el('aside', 'dashboard-sidebar');
-    const sideTitle = _el('h3', 'sidebar-title'); sideTitle.textContent = 'Engine Parameters';
+    const sideTitle = _el('h3', 'sidebar-title'); sideTitle.textContent = window.t('dash.control.panel');
     sidebar.appendChild(sideTitle);
 
     // Sliders
@@ -88,9 +88,9 @@ export class DashboardPanel {
 
     // Controls bar
     const controls = _el('div', 'sim-controls');
-    const btnStart = _btn('▶  Start', 'btn-start', () => this._onStart());
+    const btnStart = _btn(window.t('dash.btn.start'), 'btn-start', () => this._onStart());
     const btnPause = _btn('⏸  Pause', 'btn-pause', () => this._onPause());
-    const btnReset = _btn('↺  Reset', 'btn-reset', () => this._onReset());
+    const btnReset = _btn(window.t('dash.btn.reset'), 'btn-reset', () => this._onReset());
     controls.append(btnStart, btnPause, btnReset);
     this._btnStart = btnStart;
     this._btnPause = btnPause;

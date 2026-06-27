@@ -78,38 +78,38 @@ window.CoherenceAnalyzer = CoherenceAnalyzer;
 // ══════════════════════════════════════════
 const ROUTES = {
     dashboard: {
-        title: 'Simulação da Malha Octogonal',
-        subtitle: 'Motor PDE 30D com integrador Verlet de 2ª ordem e controlador κ adaptativo',
+        title: () => window.t('route.dashboard.title'),
+        subtitle: () => window.t('route.dashboard.sub'),
         render: renderDashboard
     },
     dimensions: {
-        title: '30 Dimensões da Malha Octogonal',
-        subtitle: 'Validação individual com falsificabilidade: convergência, saturação, falibilidade cruzada',
+        title: () => window.t('route.dimensions.title'),
+        subtitle: () => window.t('route.dimensions.sub'),
         render: renderDimensions
     },
     compare: {
-        title: 'Análise Comparativa de Modelos',
-        subtitle: 'Newton · MOND · ΛCDM (NFW) · Orange-DMS contra dados observacionais SPARC',
+        title: () => window.t('route.compare.title'),
+        subtitle: () => window.t('route.compare.sub'),
         render: renderCompare
     },
     benchmark: {
-        title: 'Benchmark Comparativo de Campo Escalar',
-        subtitle: 'Klein-Gordon · φ⁴ Theory · Worldsheet String · Orange-DMSE — mesmo grid, mesmas condições',
+        title: () => window.t('route.benchmark.title'),
+        subtitle: () => window.t('route.benchmark.sub'),
         render: renderBenchmark
     },
     ingest: {
-        title: 'Ingestão de Dados Externos',
-        subtitle: 'Importe dados observacionais em CSV/JSON para testagem comparativa com o modelo preditivo',
+        title: () => window.t('route.ingest.title'),
+        subtitle: () => window.t('route.ingest.sub'),
         render: renderIngest
     },
     audit: {
-        title: 'Laudo Técnico & Auditoria Pública',
-        subtitle: 'Motor fechado, auditoria aberta — certificação de conformidade com transparência total',
+        title: () => window.t('route.audit.title'),
+        subtitle: () => window.t('route.audit.sub'),
         render: renderAudit
     },
     theory: {
-        title: 'Fundamentação Teórica',
-        subtitle: 'Formalismo matemático-físico da Malha Dimensional Vetorial Esferoidal',
+        title: () => window.t('route.theory.title'),
+        subtitle: () => window.t('route.theory.sub'),
         render: renderTheory
     }
 };
@@ -150,8 +150,8 @@ function handleRoute() {
     const header = document.createElement('div');
     header.className = 'page-header animate-fade-in';
     header.innerHTML = `
-        <h1 class="page-title">${routeConfig.title}</h1>
-        <p class="page-subtitle">${routeConfig.subtitle}</p>
+        <h1 class="page-title">${routeConfig.title()}</h1>
+        <p class="page-subtitle">${routeConfig.subtitle()}</p>
     `;
     content.appendChild(header);
 
@@ -200,7 +200,7 @@ function createEngine(paramsOverrides) {
     AppState.hamiltonianHistory = [];
     AppState.edot2MeanHistory = [];
     AppState.simulationSteps = 0;
-    updateEngineStatus('idle', 'Motor Pronto');
+    updateEngineStatus('idle', window.t('engine.ready'));
 }
 
 async function runSimulation(steps, onProgress) {
@@ -209,7 +209,7 @@ async function runSimulation(steps, onProgress) {
     }
 
     AppState.simulationRunning = true;
-    updateEngineStatus('running', 'Simulando...');
+    updateEngineStatus('running', window.t('engine.running'));
 
     const batchSize = 10;
 
@@ -637,6 +637,35 @@ function init() {
         if (e.detail) {
             createEngine(e.detail);
         }
+    });
+
+    // Setup i18n
+    const btnPt = document.getElementById('lang-pt');
+    const btnEn = document.getElementById('lang-en');
+
+    if (btnPt && btnEn) {
+        // Set initial state
+        const lang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'pt';
+        if (lang === 'en') {
+            btnEn.classList.add('active');
+            btnPt.classList.remove('active');
+        }
+
+        btnPt.addEventListener('click', () => {
+            window.setLanguage('pt');
+            btnPt.classList.add('active');
+            btnEn.classList.remove('active');
+        });
+        btnEn.addEventListener('click', () => {
+            window.setLanguage('en');
+            btnEn.classList.add('active');
+            btnPt.classList.remove('active');
+        });
+    }
+
+    // Re-render route when language changes
+    window.addEventListener('language-changed', () => {
+        handleRoute();
     });
 
     // Hide loading screen

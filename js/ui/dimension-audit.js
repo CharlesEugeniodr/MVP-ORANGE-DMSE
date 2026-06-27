@@ -48,8 +48,8 @@ export class DimensionAuditPanel {
     // ── Title
     const header = _el('div', 'audit-header');
     header.innerHTML = `
-      <h2 class="section-title">Auditoria Dimensional — Malha Octagonal Vetorial</h2>
-      <p class="section-subtitle">${dims.length} dimensões avaliadas · 7 tipos funcionais · 3 faixas operacionais</p>
+      <h2 class="section-title">${window.t('route.dimensions.title')}</h2>
+      <p class="section-subtitle">${dims.length} ${window.getCurrentLanguage() === 'en' ? 'dimensions evaluated · 7 functional types · 3 operational bands' : 'dimensões avaliadas · 7 tipos funcionais · 3 faixas operacionais'}</p>
     `;
     this.root.appendChild(header);
 
@@ -96,8 +96,9 @@ export class DimensionAuditPanel {
       tr.appendChild(tdNum);
 
       // Dimension name (from the book)
+      const isEn = window.getCurrentLanguage ? window.getCurrentLanguage() === 'en' : false;
       const tdName = document.createElement('td');
-      tdName.textContent = onto.name || `Dimensão ${idx + 1}`;
+      tdName.textContent = (isEn ? onto.nameEn : onto.name) || `Dimension ${idx + 1}`;
       tdName.className = 'dim-name';
       tdName.title = onto.description || '';
       tr.appendChild(tdName);
@@ -105,7 +106,10 @@ export class DimensionAuditPanel {
       // Dimension type (color-coded from the book's 7 types)
       const tdType = document.createElement('td');
       const bandIcon = idx < 10 ? '🟢' : (idx < 20 ? '🟡' : '🔵');
-      tdType.innerHTML = `<span class="dim-type-badge" style="background:${onto.color || '#666'};color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem">${bandIcon} ${onto.typeName || '—'}</span>`;
+      const typeNameStr = (isEn && window.DIMENSION_TYPES && window.DIMENSION_TYPES[onto.type]) 
+        ? window.DIMENSION_TYPES[onto.type].nameEn 
+        : (onto.typeName || '—');
+      tdType.innerHTML = `<span class="dim-type-badge" style="background:${onto.color || '#666'};color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem">${bandIcon} ${typeNameStr}</span>`;
       tr.appendChild(tdType);
 
       // Criterion cells
@@ -154,11 +158,14 @@ export class DimensionAuditPanel {
     const td = document.createElement('td');
     td.colSpan = COLUMNS.length + 4;
     const onto = ONTOLOGY[idx] || {};
+    const isEn = window.getCurrentLanguage ? window.getCurrentLanguage() === 'en' : false;
+    const nameStr = isEn ? onto.nameEn : onto.name;
+    const appStr = isEn ? 'Application' : 'Aplicação';
     td.innerHTML = `
       <div class="audit-detail-card hud-card">
-        <h4>${onto.icon || '🔷'} Dimensão ${idx + 1} — ${onto.name || 'Análise Detalhada'}</h4>
+        <h4>${onto.icon || '🔷'} ${isEn ? 'Dimension' : 'Dimensão'} ${idx + 1} — ${nameStr || 'Análise Detalhada'}</h4>
         ${onto.description ? `<p style="color:var(--text-secondary);margin:4px 0 8px;font-style:italic">${onto.description}</p>` : ''}
-        ${onto.application ? `<p style="color:var(--text-secondary);margin:0 0 12px"><strong>Aplicação:</strong> ${onto.application}</p>` : ''}
+        ${onto.application ? `<p style="color:var(--text-secondary);margin:0 0 12px"><strong>${appStr}:</strong> ${onto.application}</p>` : ''}
         <ul style="list-style:none;padding:0;margin:8px 0">
           ${COLUMNS.map(col => {
             const key = dim[col] || 'INDETERMINATE';
