@@ -110,28 +110,27 @@ class BuiltInRunner {
           } else if (modelKey === 'phi4') {
             // φ⁴ Theory: ∂²φ/∂t² = ∇²φ + m²φ - λφ³
             // Double-well: V(φ) = -m²φ²/2 + λφ⁴/4
-            // Minima at φ = ±√(m²/λ) ≈ ±1.29 (NOT at ±E0)
-            const m2 = 0.5;   // negative mass² (tachyonic)
+            const m2 = 0.5;
             const lambda = 0.3;
             force = alpha * lap + m2 * e - lambda * e * e * e;
 
           } else if (modelKey === 'string') {
             // Worldsheet String: ∂²X/∂τ² = ∇²X
-            // Pure wave equation. NO mass. NO attractor. NO potential.
-            // Only diffusion + damping.
             force = alpha * lap;
 
           } else if (modelKey === 'orange') {
-            // Orange-DMSE: Full nonlinear attractor + coupling + adaptive κ
-            // r = E/E0 - sign(E)  →  attractor pulls to ±E0
+            // Orange-DMSE: Full nonlinear attractor
             const sign_e = e >= 0 ? 1.0 : -1.0;
             const r = e / E0 - sign_e;
             const omega = Math.max(Math.abs(e), 0.1 * E0);
-            const nl = -(kappa / E0) * omega * r;  // nonlinear attractor
-
-            // Cross-channel coupling (paired: d ↔ 29-d)
+            
+            // Fix: Constant kappa to prevent numerical explosion
+            const fixed_kappa = 5.0; 
+            const nl = -(fixed_kappa / E0) * omega * r;  
+            
+            // Fix: Mild coupling that doesn't destabilize
             const partner = dims - 1 - d;
-            const coupling = 0.1 * (E[partner][i] - e);
+            const coupling = 0.01 * (E[partner][i] - e);
 
             force = alpha * lap + nl + coupling;
           }
