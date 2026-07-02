@@ -25,6 +25,8 @@ import { ComparativePanel } from './ui/comparative-panel.js';
 import { IngestionPanel } from './ui/ingestion-panel.js';
 import { ScientificReportPanel } from './ui/scientific-report.js';
 import { BenchmarkPanel } from './ui/benchmark-panel.js?v=3.3';
+import { ApophisPanel } from './ui/apophis-panel.js';
+import { SandboxPanel } from './ui/sandbox-panel.js';
 
 // ══════════════════════════════════════════
 // DMSEParams helper — creates a params object
@@ -101,6 +103,16 @@ const ROUTES = {
         title: () => window.t('route.ingest.title'),
         subtitle: () => window.t('route.ingest.sub'),
         render: renderIngest
+    },
+    apophis: {
+        title: () => window.t('route.apophis.title'),
+        subtitle: () => window.t('route.apophis.sub'),
+        render: renderApophis
+    },
+    sandbox: {
+        title: () => window.t('route.sandbox.title'),
+        subtitle: () => window.t('route.sandbox.sub'),
+        render: renderSandbox
     },
     audit: {
         title: () => window.t('route.audit.title'),
@@ -428,6 +440,16 @@ function renderBenchmark(container) {
 
 function renderIngest(container) {
     const panel = new IngestionPanel(container);
+    panel.render();
+}
+
+function renderApophis(container) {
+    const panel = new ApophisPanel(container);
+    panel.render();
+}
+
+function renderSandbox(container) {
+    const panel = new SandboxPanel(container);
     panel.render();
 }
 

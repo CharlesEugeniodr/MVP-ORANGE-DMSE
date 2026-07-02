@@ -11,6 +11,8 @@ const DICTIONARY = {
         'nav.benchmark': 'Benchmark',
         'nav.ingest': 'Ingestão de Dados',
         'nav.audit': 'Laudo & Auditoria',
+        'nav.apophis': 'Protocolo Apophis',
+        'nav.sandbox': 'Falsifiability Sandbox',
         'nav.theory': 'Fundamentação',
         'sidebar.subtitle': 'Validação Dimensional',
         'engine.idle': 'Motor Inativo',
@@ -38,6 +40,11 @@ const DICTIONARY = {
         'route.ingest.sub': 'Importe dados observacionais em CSV/JSON para testagem comparativa com o modelo preditivo',
         'route.audit.title': 'Laudo Técnico & Auditoria Pública',
         'route.audit.sub': 'Motor fechado, auditoria aberta — certificação de conformidade com transparência total',
+        'route.audit.sub': 'Motor fechado, auditoria aberta — certificação de conformidade com transparência total',
+        'route.apophis.title': 'Protocolo Apophis 2029',
+        'route.apophis.sub': 'Previsão de Falsificabilidade Empírica: Anomalia Orbital de +244 metros',
+        'route.sandbox.title': 'Falsifiability Sandbox',
+        'route.sandbox.sub': 'Teste de Estresse Adversarial: Injeção de Ruído Quântico vs Homeostase da Malha',
         'route.theory.title': 'Fundamentação Teórica',
         'route.theory.sub': 'Formalismo matemático-físico da Malha Dimensional Vetorial Esferoidal',
 
@@ -84,6 +91,19 @@ const DICTIONARY = {
         'theory.hamiltonian': '5. Conservação Hamiltoniana',
         'theory.falsifiability': '6. Falsificabilidade e Rigor Científico',
         'theory.metrics': '7. Métricas Estatísticas de Validação',
+
+        // Apophis
+        'apophis.countdown': 'Contagem Regressiva para 13/04/2029',
+        'apophis.prediction': 'A Anomalia de +244m',
+        'apophis.newton': 'Padrão Newton/Einstein',
+        'apophis.orange': 'Predição Orange-DMSE',
+        'apophis.inject': 'Simular Aproximação Terrestre',
+
+        // Sandbox
+        'sandbox.btn.noise': '⚡ Injetar Anomalia Vetorial (Ruído Quântico)',
+        'sandbox.btn.reset': '🔄 Resetar Sistema',
+        'sandbox.chart.title': 'Homeostase vs Colapso',
+        'sandbox.desc': 'Verifique se o modelo dissipa o ruído retornando ao equilíbrio (r_rms → 0) ou se acumula erro indefinidamente.',
     },
     en: {
         // Nav & Sidebar
@@ -93,6 +113,8 @@ const DICTIONARY = {
         'nav.benchmark': 'Benchmark',
         'nav.ingest': 'Data Ingestion',
         'nav.audit': 'Audit & Report',
+        'nav.apophis': 'Apophis Protocol',
+        'nav.sandbox': 'Falsifiability Sandbox',
         'nav.theory': 'Theory',
         'sidebar.subtitle': 'Dimensional Validation',
         'engine.idle': 'Engine Idle',
@@ -120,6 +142,11 @@ const DICTIONARY = {
         'route.ingest.sub': 'Import observational data in CSV/JSON for comparative testing with the predictive model',
         'route.audit.title': 'Technical Report & Public Audit',
         'route.audit.sub': 'Closed engine, open audit — compliance certification with full transparency',
+        'route.audit.sub': 'Closed engine, open audit — compliance certification with full transparency',
+        'route.apophis.title': 'Apophis Protocol 2029',
+        'route.apophis.sub': 'Empirical Falsifiability Prediction: Orbital Anomaly of +244 meters',
+        'route.sandbox.title': 'Falsifiability Sandbox',
+        'route.sandbox.sub': 'Adversarial Stress Test: Quantum Noise Injection vs Mesh Homeostasis',
         'route.theory.title': 'Theoretical Foundation',
         'route.theory.sub': 'Mathematical-physical formalism of the Spheroidal Vector Dimensional Mesh',
 
@@ -166,6 +193,19 @@ const DICTIONARY = {
         'theory.hamiltonian': '5. Hamiltonian Conservation',
         'theory.falsifiability': '6. Falsifiability and Scientific Rigor',
         'theory.metrics': '7. Statistical Validation Metrics',
+
+        // Apophis
+        'apophis.countdown': 'Countdown to April 13, 2029',
+        'apophis.prediction': 'The +244m Anomaly',
+        'apophis.newton': 'Newton/Einstein Standard',
+        'apophis.orange': 'Orange-DMSE Prediction',
+        'apophis.inject': 'Simulate Earth Approach',
+
+        // Sandbox
+        'sandbox.btn.noise': '⚡ Inject Vector Anomaly (Quantum Noise)',
+        'sandbox.btn.reset': '🔄 Reset System',
+        'sandbox.chart.title': 'Homeostasis vs Collapse',
+        'sandbox.desc': 'Check if the model dissipates noise returning to equilibrium (r_rms → 0) or accumulates error indefinitely.',
     }
 };
 
